@@ -692,6 +692,7 @@ body::before{
     <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);margin-bottom:8px" data-t="exp_title">Your 7 days are complete</div>
     <div style="font-size:13px;color:var(--dim);line-height:1.75;margin-bottom:22px" data-t="exp_body">Thank you for spending this week with Mirumi. Your journals stay saved in this browser. One last thing — please share your feedback. It means the world.</div>
     <a id="feedbackLink" href="#" target="_blank" style="display:block;background:var(--accent);color:#fff;border-radius:12px;padding:14px;font-family:'Quicksand','Noto Sans TC',sans-serif;font-weight:700;font-size:14px;text-decoration:none;letter-spacing:0.04em" data-t="exp_btn">Share my feedback →</a>
+    <button onclick="backupData()" style="display:block;width:100%;margin-top:10px;background:none;border:1.5px solid var(--border);border-radius:12px;padding:13px;font-family:'Quicksand','Noto Sans TC',sans-serif;font-weight:600;font-size:13px;color:var(--dim);cursor:pointer" data-t="exp_dl_btn">Download my journals</button>
   </div>
 </div>
 
@@ -806,7 +807,7 @@ const T={
     code_title:'歡迎來到 Mirumi',code_sub:'輸入你的邀請碼，開始免費 7 天的心靈旅程',code_btn:'開始我的 7 天 →',
     code_err:'這個邀請碼好像不對，再確認一下，或問問 YuChun 💌',code_err_net:'連線出了點問題，請再試一次',
     trial_day:'第 {n} 天 · 共 7 天',trial_left:'剩餘 {n} 天',trial_over:'試用已結束',
-    exp_title:'你的 7 天旅程完成了',exp_body:'謝謝你這一週與 Mirumi 同行。你的日記仍保存在這個瀏覽器裡。最後一件小事——請分享你的使用回饋，這對我們意義重大。',exp_btn:'分享我的回饋 →',
+    exp_title:'你的 7 天旅程完成了',exp_body:'謝謝你這一週與 Mirumi 同行。你的日記仍保存在這個瀏覽器裡。最後一件小事——請分享你的使用回饋，這對我們意義重大。',exp_btn:'分享我的回饋 →',exp_dl_btn:'下載我的日記',
     limit_msg:'今天的分析次數已用完，明天見 🌙',err_generic:'發生問題，請再試一次',
     set_title:'設定',set_code_label:'你的邀請碼',set_close:'關閉',
     mf_title:'你的情緒旅程',mf_better:'較好',mf_harder:'較難',mf_empty:'開始寫日記，看見你的心情流動 🌸',mf_none:'還沒有情緒分析',
@@ -823,7 +824,7 @@ const T={
     code_title:'Welcome to Mirumi',code_sub:'Enter your invitation code to start your free 7-day journey.',code_btn:'Start my 7 days →',
     code_err:"That code doesn't look right — double-check it, or ask YuChun 💌",code_err_net:'Connection problem — please try again.',
     trial_day:'Day {n} of 7',trial_left:'{n} day(s) left',trial_over:'Trial ended',
-    exp_title:'Your 7 days are complete',exp_body:'Thank you for spending this week with Mirumi. Your journals stay saved in this browser. One last thing — please share your feedback. It means the world.',exp_btn:'Share my feedback →',
+    exp_title:'Your 7 days are complete',exp_body:'Thank you for spending this week with Mirumi. Your journals stay saved in this browser. One last thing — please share your feedback. It means the world.',exp_btn:'Share my feedback →',exp_dl_btn:'Download my journals',
     limit_msg:"You've reached today's limit — see you tomorrow 🌙",err_generic:'Something went wrong. Please try again.',
     set_title:'Settings',set_code_label:'Your invitation code',set_close:'Close',
     mf_title:'Your Emotional Journey',mf_better:'better',mf_harder:'harder',mf_empty:'Start journaling to see your mood flow 🌸',mf_none:'No moods analyzed yet',
@@ -888,15 +889,7 @@ let currentCat=null;
 function getJournals(){
   try{
     const raw=JSON.parse(localStorage.getItem(J_KEY))||[];
-    // Deduplicate by calendar date — keep most recent entry per date
-    const byDate={};
-    for(const e of raw){
-      const key=e.date&&String(e.date).length===10?String(e.date):
-        (()=>{const d=new Date(String(e.date).length===10?e.date+'T12:00:00':e.date);
-          return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;})();
-      if(!byDate[key]||new Date(e.date)>new Date(byDate[key].date))byDate[key]=e;
-    }
-    return Object.values(byDate).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    return raw.sort((a,b)=>new Date(b.date)-new Date(a.date));
   }catch{return[]}
 }
 function parseDate(s){return s&&String(s).length===10?new Date(String(s)+'T12:00:00'):new Date(s)}
